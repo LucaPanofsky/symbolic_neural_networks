@@ -1,0 +1,34 @@
+{:deps    {org.clojure/clojure                  {:mvn/version "1.11.1"}
+           instaparse/instaparse                {:mvn/version "1.4.12"}}
+ :aliases {:dev {:extra-paths ["src/circuit"]
+                 :jvm-opts ["-Xmx10G"]
+                 :extra-deps  {nrepl/nrepl          {:mvn/version "0.9.0"}
+                               cider/cider-nrepl    {:mvn/version "0.49.2"}}}
+           :server {:extra-paths ["dev" "test"]
+                    :jvm-opts ["-Xmx10G"]
+                    :extra-deps  {nrepl/nrepl          {:mvn/version "0.9.0"}
+                                  cider/cider-nrepl    {:mvn/version "0.49.2"}
+                                  ring/ring                            {:mvn/version "1.13.0"}
+                                             ;; Server stuff
+                                  aleph/aleph                          {:mvn/version "0.7.1"}
+                                             ;; Reitit router
+                                  metosin/reitit                       {:mvn/version "0.7.2"}
+                                             ;; Front end
+                                  hiccup/hiccup                        {:mvn/version "2.0.0-RC3"}
+                                  garden/garden                        {:mvn/version "1.3.10"}
+                                  org.babashka/sci                     {:mvn/version "0.9.44"}
+
+                                  hawk/hawk                            {:mvn/version "0.2.11"}}}
+           :test {:jvm-opts ["-Djava.util.logging.SimpleFormatter.format=%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$-6s %5$s%6$s%n"]
+                  :extra-paths ["test" "test-resources"]
+                  :extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}
+                               io.github.cognitect-labs/test-runner
+                               {:git/tag "v0.5.1" :git/sha "dfb30dd6605cb6c0efc275e1df1736f6e90d4d73"}}
+                  :exec-fn nyaya.nyaya-am-poc.test-runner/run}
+           :nrepl
+           {:extra-deps
+            {nrepl/nrepl {:mvn/version "0.9.0"}
+             cider/cider-nrepl {:mvn/version "0.28.5"}}
+            :jvm-opts ["-Xmx64G" "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED" "--add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED"]
+
+            :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}}}
