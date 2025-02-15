@@ -4,7 +4,8 @@
   "src/client"]
 
  :dependencies
- []
+ [[crate "0.2.5"]
+  [instaparse "1.5.0"]]
 
  :dev-http
  {8020 "docs"}

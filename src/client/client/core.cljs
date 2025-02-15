@@ -1,11 +1,17 @@
 (ns client.core
   (:require [circuit.protocol :as protocol]
             [circuit.core :as core]
-            [circuit.equilibrium :as equilibrium]))
+            [circuit.equilibrium :as equilibrium]
+            [circuit.interpreter :as interpreter]))
 
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
-  (js/console.log "start"))
+  (js/console.log "start")
+  (js/console.log
+   (interpreter/parser
+    "bar(a, b) -> c
+     yin(c, d) -> e
+     yang(d, e) -> f")))
 
 (defn init []
   ;; init is called ONCE when the page loads

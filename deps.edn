@@ -4,21 +4,28 @@
                  :jvm-opts ["-Xmx10G"]
                  :extra-deps  {nrepl/nrepl          {:mvn/version "0.9.0"}
                                cider/cider-nrepl    {:mvn/version "0.49.2"}}}
+
+           :client {:extra-paths ["src/client"]
+                    :jvm-opts ["-Xmx10G"]
+                    :extra-deps  {nrepl/nrepl          {:mvn/version "0.9.0"}
+                                  cider/cider-nrepl    {:mvn/version "0.49.2"}
+                                  hiccup/hiccup        {:mvn/version "2.0.0-RC3"}
+                                  garden/garden        {:mvn/version "1.3.10"}}}
            :server {:extra-paths ["dev" "test"]
                     :jvm-opts ["-Xmx10G"]
                     :extra-deps  {nrepl/nrepl          {:mvn/version "0.9.0"}
                                   cider/cider-nrepl    {:mvn/version "0.49.2"}
-                                  ring/ring                            {:mvn/version "1.13.0"}
+                                  ring/ring            {:mvn/version "1.13.0"}
                                              ;; Server stuff
-                                  aleph/aleph                          {:mvn/version "0.7.1"}
+                                  aleph/aleph          {:mvn/version "0.7.1"}
                                              ;; Reitit router
-                                  metosin/reitit                       {:mvn/version "0.7.2"}
+                                  metosin/reitit       {:mvn/version "0.7.2"}
                                              ;; Front end
-                                  hiccup/hiccup                        {:mvn/version "2.0.0-RC3"}
-                                  garden/garden                        {:mvn/version "1.3.10"}
-                                  org.babashka/sci                     {:mvn/version "0.9.44"}
+                                  hiccup/hiccup        {:mvn/version "2.0.0-RC3"}
+                                  garden/garden        {:mvn/version "1.3.10"}
+                                  org.babashka/sci     {:mvn/version "0.9.44"}
 
-                                  hawk/hawk                            {:mvn/version "0.2.11"}}}
+                                  hawk/hawk            {:mvn/version "0.2.11"}}}
            :test {:jvm-opts ["-Djava.util.logging.SimpleFormatter.format=%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$-6s %5$s%6$s%n"]
                   :extra-paths ["test" "test-resources"]
                   :extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}

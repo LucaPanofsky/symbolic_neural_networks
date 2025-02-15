@@ -1,0 +1,151 @@
+body {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    margin: 0;
+}
+
+main {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+
+}
+
+.sidebar {
+    display: grid;
+    grid-template-rows: 2fr 2fr 1fr;
+    /* First two boxes take more space */
+    height: 100%;
+}
+
+/* Styling for the Box Content with Overflow Handling */
+.neo-box-content {
+    width: 90%;
+    height: 180px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 3px solid black;
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    padding: 10px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Enable vertical scrolling if content exceeds box height */
+    overflow-y: auto;
+}
+
+
+.box {
+
+    padding: 10px;
+}
+
+/* Root Variables for Dark Neo-Brutalism */
+:root {
+    --bg-color: #121212;
+    /* Dark background */
+    --primary-color: #ffcc00;
+    /* Bright accent color */
+    --secondary-color: #ff5555;
+    /* Another accent for contrast */
+    --text-color: #ffffff;
+    /* White text */
+    --shadow-color: rgba(0, 0, 0, 0.9);
+    /* Strong shadow */
+}
+
+/* Apply Background and Colors */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Neo-Brutalist Button */
+.neo-brutal-btn {
+    background: var(--primary-color);
+    color: black;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 12px 24px;
+    border: 3px solid black;
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out;
+    text-transform: uppercase;
+}
+
+.neo-brutal-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--shadow-color);
+}
+
+.neo-brutal-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+/* Flexbox for Button Group */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* Neo-Brutalist Textarea */
+.neo-textarea {
+    width: 90%;
+    height: 180px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 3px solid black;
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    padding: 10px;
+    font-size: 1rem;
+    resize: none;
+}
+
+.neo-textarea:focus {
+    outline: none;
+    box-shadow: 6px 6px 0 var(--shadow-color);
+}
+
+/* Styling for the Range Inputs */
+.range-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.range-container label {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-right: 10px;
+}
+
+.range-container input[type="range"] {
+    width: 40px;
+    /* Adjust the width of the range slider */
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--bg-color);
+    border: none;
+    border-radius: 5px;
+    height: 25px;
+    padding-inline: 2.5px;
+    background: pink;
+}
+
+.range-container input[type="range"]:focus {
+    outline: none;
+    
+}
+
+.signals {
+    display: flex;
+    flex-wrap: wrap;
+}
