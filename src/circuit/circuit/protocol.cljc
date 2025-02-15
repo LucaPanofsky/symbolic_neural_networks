@@ -1,10 +1,10 @@
-(ns circuit.protocol)
+(ns circuit.protocol
+  (:require [circuit.utils :as utils]))
 
-(defn safe-meta [thing] (try (meta thing) (catch Exception _e false)))
 (def nothing 'nothing)
 (defn nothing? [x] (= x nothing))
 (defn something? [x] (not (nothing? x)))
-(defn contradiction? [x] (-> x safe-meta :contradiction))
+(defn contradiction? [x] (-> x utils/safe-meta :contradiction))
 
 (defprotocol IAbstractCircuit
   "A protocol for the topology of the circuit."
@@ -88,4 +88,4 @@
    
    means that the type has a merge operation. "
   [x]
-  (get (safe-meta x) 'partial-information))
+  (get (utils/safe-meta x) 'partial-information))

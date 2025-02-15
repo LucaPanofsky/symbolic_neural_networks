@@ -21,7 +21,7 @@
      (neuron 'yang 'd 'e 'f)))
 
   (dev-circuit)
-  (dev-circuit 'a 'a 'b 'b 'd 'd)
+  (apply dev-circuit ['a 'a 'b 'b 'd 'd])
   (dev-circuit {'a :a 'b :b 'd :d})
 
   (def test-rule-circuit
@@ -160,9 +160,9 @@
       'process-a (fn [& args] (println "Process a will throw") (/ 1 0))
       'some-process (fn [& args] (into [:some-process] args))}))
 
-  (try
-    (faulty-pipeline-1 'a :a 'b :b)
-    (catch Exception e (ex-data e)))
+  #_(try
+      (faulty-pipeline-1 'a :a 'b :b)
+      (catch Exception e (ex-data e)))
 
 
   (def faulty-pipeline-2
@@ -180,10 +180,10 @@
       'process-a (fn [& args] (into [:process-a] args))
       'some-process (fn [& args] (into [:some-process] args))}))
 
-  (try
+  #_(try
 
-    (faulty-pipeline-2 'a :a 'b :b)
-    (catch Exception e (ex-data e))))
+      (faulty-pipeline-2 'a :a 'b :b)
+      (catch Exception e (ex-data e))))
 
 
 
