@@ -19,7 +19,7 @@
           increment (try (apply action-fn args)
                          (catch #?(:clj Exception :cljs js/Object) e
                            (information/->contradiction
-                            (.getMessage e)
+                            #?(:clj (.getMessage e) :cljs (str e))
                             {:tag _name
                              :sources _sources
                              :to _to
