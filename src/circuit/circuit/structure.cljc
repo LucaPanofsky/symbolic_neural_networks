@@ -1,5 +1,7 @@
 (ns circuit.structure
-  (:require [circuit.protocol :as protocol]))
+  (:require 
+   [circuit.protocol :as protocol]
+   [circuit.utils :as utils]))
 
 (defn descend-a-from-b? [h a b] (contains? (descendants h b) a))
 (defn has-a-more-ancestors? [h a b] (> (count (ancestors h a)) (count (ancestors h b))))
@@ -17,15 +19,14 @@
 
 (defn make-structure
   [neurons]
-  (letfn [(safe-derive [h t p] (try (derive h t p) (catch Exception _ h)))]
-    (reduce
-     (fn [h neuron]
-       (reduce
-        (fn [h i] (safe-derive h (protocol/tag neuron) i))
-        (safe-derive h (protocol/to-cell neuron) (protocol/tag neuron))
-        (protocol/arg-cells neuron)))
-     (make-hierarchy)
-     neurons)))
+  (reduce
+   (fn [h neuron]
+     (reduce
+      (fn [h i] (utils/safe-derive h (protocol/tag neuron) i))
+      (utils/safe-derive h (protocol/to-cell neuron) (protocol/tag neuron))
+      (protocol/arg-cells neuron)))
+   (make-hierarchy)
+   neurons))
 
 (defn make-order [circuit]
   (into

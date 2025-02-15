@@ -17,7 +17,7 @@
     (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) _sources)
           action-fn (or _action (partial symbolic-apply _name))
           increment (try (apply action-fn args)
-                         (catch Exception e
+                         (catch #?(:clj Exception :cljs js/Object) e
                            (information/->contradiction
                             (.getMessage e)
                             {:tag _name
@@ -33,7 +33,7 @@
         (protocol/get-cell circuit _to)
         (let [action-fn (or _action (partial symbolic-apply _name))
               increment (try (apply action-fn args)
-                             (catch Exception e
+                             (catch #?(:clj Exception :cljs js/Object) e
                                (information/throw-contradiction-exception
                                 e
                                 {:tag _name
@@ -83,22 +83,39 @@
    (->SymbolicCell cell thing #{})))
 
 (defrecord SymbolicCircuit [_name _neurons _cells _structure _order _solution]
-  clojure.lang.IFn
-  (invoke [this]
-    (this
-     (into {}
-           (map (juxt protocol/tag protocol/content))
-           (protocol/cells this))))
-  (invoke [this arg-map]
-    (into {}
-          (map (juxt protocol/tag protocol/content))
-          (-> (_solution this arg-map) (protocol/cells))))
-  (invoke [this k v] (this (hash-map k v)))
-  (invoke [this a b c d] (this (hash-map a b c d)))
-  (invoke [this a b c d e f] (this (hash-map a b c d e f)))
-  (invoke [this a b c d e f g h] (this (hash-map a b c d e f g h)))
-  (invoke [this a b c d e f g h i l] (this (hash-map a b c d e f g h i l)))
-  (applyTo [this args] (this (apply hash-map args)))
+  #?(:clj clojure.lang.IFn :cljs IFn)
+
+  #?(:clj
+     (invoke [this]
+             (this
+              (into {}
+                    (map (juxt protocol/tag protocol/content))
+                    (protocol/cells this))))
+     :cljs (-invoke [this]
+                    (this
+                     (into {}
+                           (map (juxt protocol/tag protocol/content))
+                           (protocol/cells this)))))
+  #?(:clj (invoke [this arg-map]
+                  (into {}
+                        (map (juxt protocol/tag protocol/content))
+                        (-> (_solution this arg-map) (protocol/cells))))
+     :cljs (-invoke [this arg-map]
+                    (into {}
+                          (map (juxt protocol/tag protocol/content))
+                          (-> (_solution this arg-map) (protocol/cells)))))
+  #?(:clj (invoke [this k v] (this (hash-map k v)))
+     :cljs (-invoke [this k v] (this (hash-map k v))))
+  #?(:clj (invoke [this a b c d] (this (hash-map a b c d)))
+     :cljs (-invoke [this a b c d] (this (hash-map a b c d))))
+  #?(:clj (invoke [this a b c d e f] (this (hash-map a b c d e f)))
+     :cljs (-invoke [this a b c d e f] (this (hash-map a b c d e f))))
+  #?(:clj (invoke [this a b c d e f g h] (this (hash-map a b c d e f g h)))
+     :cljs (-invoke [this a b c d e f g h] (this (hash-map a b c d e f g h))))
+  #?(:clj (invoke [this a b c d e f g h i l] (this (hash-map a b c d e f g h i l)))
+     :cljs (-invoke [this a b c d e f g h i l] (this (hash-map a b c d e f g h i l))))
+  #?(:clj (applyTo [this args] (this (apply hash-map args))))
+
   protocol/ITag
   (tag [_] _name)
   protocol/IGame
@@ -127,7 +144,7 @@
   protocol/IOrganism
   (neurons [_] (vals _neurons))
   (cells [_] (vals _cells))
-  
+
   (acknowledge [this cell]
     (assoc-in
      this
