@@ -1,0 +1,20 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src/circuit"
+  "src/client"]
+
+ :dependencies
+ []
+
+ :dev-http
+ {8020 "docs"}
+
+ :builds
+ {:app
+  {:target :browser
+   :output-dir "docs/js"
+   :asset-path "/js"
+
+   :modules
+   {:main ; becomes public/js/main.js
+    {:init-fn client.core/init}}}}}

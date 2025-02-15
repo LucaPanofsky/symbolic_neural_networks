@@ -3,3 +3,7 @@
 .cpcache/
 .lsp/
 .nrepl-port
+node_modules/
+.shadow-cljs/
+docs/js/cljs-runtime
+main.js

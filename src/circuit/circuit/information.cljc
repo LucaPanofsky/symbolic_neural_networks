@@ -23,10 +23,10 @@
 (defn throw-contradiction-exception [exception _data]
   (throw
    (ex-info
-    (str "Contradiction: " (.getMessage exception))
+    (str "Contradiction: " #?(:clj (.getMessage exception) :cljs (str exception)))
     (protocol/explain
      (->contradiction
-      (.getMessage exception)
+      #?(:clj (.getMessage exception) :cljs (str exception))
       {:coordinate _data
        :exception (or (ex-data exception) exception)})))))
 
