@@ -15,7 +15,6 @@
   {:target :browser
    :output-dir "docs/js"
    :asset-path "/js"
-
    :modules
    {:main ; becomes public/js/main.js
     {:init-fn client.core/init}}}}}
