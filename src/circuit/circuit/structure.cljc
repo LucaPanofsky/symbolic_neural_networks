@@ -13,8 +13,8 @@
       (cond
         (descend-a-from-b? h a b) 1
         (descend-a-from-b? h b a) -1
-        (has-a-more-ancestors? h a b) -1
-        (has-a-more-ancestors? h b a) 1
+        (has-a-more-ancestors? h a b) 1
+        (has-a-more-ancestors? h b a) -1
         :else (compare (name a) (name b))))))
 
 (defn make-structure

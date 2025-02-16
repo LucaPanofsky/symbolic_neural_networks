@@ -5,7 +5,8 @@
    At the moment, it collects examples and  repl tests."
   (:require [circuit.protocol :as protocol]
             [circuit.core :as core]
-            [circuit.equilibrium :as equilibrium]))
+            [circuit.equilibrium :as equilibrium]
+            [clojure.set :as set]))
 
 ;; ---- Public APIs -----------------------------------------
 
@@ -186,6 +187,14 @@
       (catch Exception e (ex-data e))))
 
 
-
+#_(def tree
+  {:variable 'a,
+   :true   {:variable 'b,
+            :true {:outcome true, :value ['fn-a 'fn-b 'fn-c]},
+            :false {:variable 'd, :true {:outcome true, :value ['fn-c]}, :false {:outcome true, :value []}}},
+   :false
+   {:variable 'b,
+    :true {:variable 'c, :true {:outcome true, :value ['fn-b]}, :false {:outcome true, :value []}},
+    :false {:outcome true, :value []}}})
 
 

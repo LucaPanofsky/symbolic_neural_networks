@@ -1,5 +1,6 @@
 (ns circuit.interpreter
-  (:require [instaparse.core :as insta]))
+  (:require [instaparse.core :as insta]
+            [circuit.core :as core]))
 
 (def circuit-grammar
   "
@@ -13,15 +14,27 @@
   <symbol> = #'[a-zA-Z0-9!?\\-_.@#]+'
   ")
 
+(def parser (insta/parser circuit-grammar))
+
+(def neuron core/make-neuron)
+(def circuit core/symbolic-neural-network)
+
+(defn read-circuit [c-string]
+  (let [parsed (parser c-string)
+        neurons (map (fn [n] (apply neuron (map symbol (rest n)))) (rest parsed))]
+    (apply circuit (cons 'editor-circuit neurons))))
+
+(read-circuit
+ "bar(a, b) -> c
+      yin(c, d) -> e
+      yang(d, e) -> f
+      user@domain(input1, input2, input3) -> output#123")
+
 (comment
-  (def parser (insta/parser circuit-grammar))
-
-
   (def circuit-str
-    "bar(a, b) -> c
-     yin(c, d) -> e
-     yang(d, e) -> f
-     user@domain(input1, input2, input3) -> output#123")
+    "f(x, y) -> z
+g(q, m) -> z
+k(m, x) -> y")
 
   (parser circuit-str)
 

@@ -4,7 +4,8 @@
   "src/client"]
 
  :dependencies
- []
+ [[crate "0.2.5"]
+  [instaparse "1.5.0"]]
 
  :dev-http
  {8020 "docs"}
@@ -14,7 +15,6 @@
   {:target :browser
    :output-dir "docs/js"
    :asset-path "/js"
-
    :modules
    {:main ; becomes public/js/main.js
     {:init-fn client.core/init}}}}}
