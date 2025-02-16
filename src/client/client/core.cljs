@@ -1,17 +1,26 @@
 (ns client.core
-  (:require [circuit.protocol :as protocol]
-            [circuit.core :as core]
-            [circuit.equilibrium :as equilibrium]
-            [circuit.interpreter :as interpreter]))
+  (:require
+   [client.engine :as client-engine]))
+
+(defn register-events [event-dispatch]
+  (run!
+   (fn [[k v]] (js/document.addEventListener k v))
+   event-dispatch))
+
+(defn app []
+  (js/document.addEventListener
+   "DOMContentLoaded"
+   (fn [x]
+     (js/window.mermaid.initialize
+      #js{:startOnLoad false
+          :flowchart #js{:useMaxWidth true, :htmlLabels true, :defaultRenderer "elk"}})))
+  (register-events client-engine/event-dispatch))
+
 
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
   (js/console.log "start")
-  (js/console.log
-   (interpreter/parser
-    "bar(a, b) -> c
-     yin(c, d) -> e
-     yang(d, e) -> f")))
+  (app))
 
 (defn init []
   ;; init is called ONCE when the page loads
@@ -24,15 +33,3 @@
 (defn ^:dev/before-load stop []
   (js/console.log "stop"))
 
-(comment
-  (def neuron core/make-neuron)
-  (def circuit core/symbolic-neural-network)
-  (def dev-circuit
-    (circuit
-     'foo
-     (neuron 'bar 'a 'b 'c)
-     (neuron 'yin 'c 'd 'e)
-     (neuron 'yang 'd 'e 'f)))
-  (dev-circuit)
-  (apply dev-circuit ['a 'a 'b 'b 'd 'd])
-  (dev-circuit {'a :a 'b :b 'd :d}))

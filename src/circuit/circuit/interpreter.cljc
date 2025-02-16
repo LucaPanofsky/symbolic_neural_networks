@@ -32,10 +32,9 @@
 
 (comment
   (def circuit-str
-    "bar(a, b) -> c
-     yin(c, d) -> e
-     yang(d, e) -> f
-     user@domain(input1, input2, input3) -> output#123")
+    "f(x, y) -> z
+g(q, m) -> z
+k(m, x) -> y")
 
   (parser circuit-str)
 

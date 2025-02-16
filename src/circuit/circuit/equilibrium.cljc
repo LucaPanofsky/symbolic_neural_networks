@@ -118,10 +118,17 @@
         ;; Contradictions may stem from loops or partial information
         ;; if loop? exclude contradictory, else merge
         (if (some-recursive-contradiction? circuit cells)
-          (set/intersection
-           (protocol/order circuit)
-           (reduce set/union (map protocol/signals (remove (comp protocol/contradiction? protocol/content) cells))))
-          (reduce set/union (map protocol/signals cells))))
+          {:outcome true
+           :value
+           (into [] (sort
+                     (structure/make-order-comparator circuit)
+                     (reduce set/union (map protocol/signals (remove (comp protocol/contradiction? protocol/content) cells)))))}
+
+          {:outcome true
+           :value
+           (into [] (sort
+                     (structure/make-order-comparator circuit)
+                     (reduce set/union (map protocol/signals cells))))}))
       ;; True branch expansion
       (true-branch [circuit x variables]
         ;; We assign the new variable and solve the common knowledge game

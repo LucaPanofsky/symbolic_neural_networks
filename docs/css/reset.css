@@ -1,0 +1,71 @@
+/* Resetting margins and paddings */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Remove default font-family and styles */
+body, button, input, textarea {
+    font-family: Arial, sans-serif;
+    font-size: 100%;
+    font-weight: normal;
+    line-height: normal;
+}
+
+/* Reset text-decoration and color of links */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Remove background and borders for form elements */
+input, button, textarea, select {
+    background: none;
+    border: none;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+/* Fix for form element appearance in different browsers */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Reset list styles */
+ul, ol {
+    list-style: none;
+}
+
+/* Reset table borders and spacing */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* Remove default block styling */
+blockquote, figure {
+    margin: 0;
+}
+
+/* Ensure that elements are visible */
+img, video, object, iframe {
+    max-width: 100%;
+    display: block;
+    height: auto;
+}
+
+/* Prevent page flicker */
+html {
+    height: 100%;
+}
+
+/* Remove default body margin */
+body {
+    height: 100%;
+}

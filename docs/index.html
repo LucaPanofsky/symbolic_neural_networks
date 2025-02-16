@@ -1,66 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html><html><meta charset="UTF-8"><meta content="IE=edge" http-equiv="X-UA-Compatible"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="/css/main.css" rel="stylesheet"><link href="/css/reset.css" rel="stylesheet"><title>Browser Starter</title><header><h1 class="title">Organisms: symbolic neural networks</h1></header><main><section class="sidebar"><div class="box box1"><div class="button-group"><button _="on click send resetCircuit to document" class="neo-brutal-btn">reset</button><button _="on click get the next &lt;textarea/&gt; 
+             send compileCircuit(value: result.value) to document 
+             end" class="neo-brutal-btn">draw circuit</button></div><textarea class="neo-textarea" placeholder="f(x, y) -&gt; z"></textarea></div><div class="box box2"><p>Signals</p><div class="neo-box-content signals" id="signals"></div></div></section><section class="content-column"><div class="column-buttons"><div><button _="on click send compileBooleanFormula to document end" class="neo-brutal-btn">Decision Diagram</button></div><div><button _="on click send exportCircuit to document end" class="neo-brutal-btn">Export</button></div></div><section class="content"><div class="diagram-container"><pre id="diagram"></pre></div></section></section></main><footer class="footer"><div class="title-2">About Organism</div><p class="intro-p">A demonstrative front-end for <code>Organisms</code> , work in progress <a href="https://github.com/LucaPanofsky/symbolic_neural_networks">GitHub</a></p><div class="title-3">Language</div><pre class="example">neuron-1(arg_1, ..., arg_n) -> output
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/main.css">
-    <title>Browser Starter</title>
-</head>
+. . .
 
-<body>
-    <header>
-        <h1>Header</h1>
-    </header>
-    <main>
-        <section class="sidebar">
-            <div class="box box1">
-                <div class="button-group">
-                    <button class="neo-brutal-btn">Button 1</button>
-                    <button class="neo-brutal-btn">Button 2</button>
-                </div>
-                <textarea class="neo-textarea" placeholder="Type here..."></textarea>
-            </div>
-
-            <div class="box box2">
-                <div class="button-group">
-                    <button class="neo-brutal-btn">Button 1</button>
-                    <button class="neo-brutal-btn">Button 2</button>
-                </div>
-                <div class="neo-box-content signals">
-                    <div class="range-container">
-                        <label for="range1">Range 1</label>
-                        <input type="range" id="range1" min="0" max="1" step="1" value="0">
-                    </div>
-                    <div class="range-container">
-                        <label for="range2">Range 2</label>
-                        <input type="range" id="range2" min="0" max="1" step="1" value="0">
-                    </div>
-                    <div class="range-container">
-                        <label for="range3">Range 3</label>
-                        <input type="range" id="range3" min="0" max="1" step="1" value="0">
-                    </div>
-                    <div class="range-container">
-                        <label for="range4">Range 4</label>
-                        <input type="range" id="range4" min="0" max="1" step="1" value="0">
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="box box3">
-                <button class="neo-brutal-btn">Boolean Formula</button>
-            </div>
-        </section>
-        <section class="content">
-            <p>Main content here</p>
-        </section>
-    </main>
-    <footer>
-        <p>Footer</p>
-    </footer>
-    <script src="/js/main.js"></script>
-</body>
-
-</html>
+neuron-m(arg_1, ..., arg_l) -> output</pre><p class="explain-p">Each neuron must produce exactly one output. Multiple outputs are not currently supported.</p></footer><script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script><script src="https://unpkg.com/idiomorph@0.7.1"></script><script src="https://unpkg.com/hyperscript.org@0.9.14"></script><script src="/js/main.js"></script></html></html>

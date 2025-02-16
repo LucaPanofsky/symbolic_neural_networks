@@ -5,6 +5,13 @@
                  :extra-deps  {nrepl/nrepl          {:mvn/version "0.9.0"}
                                cider/cider-nrepl    {:mvn/version "0.49.2"}}}
 
+           :client/build {:extra-paths ["src/client"]
+                          :jvm-opts ["-Xmx10G"]
+                          :extra-deps  {nrepl/nrepl          {:mvn/version "0.9.0"}
+                                        cider/cider-nrepl    {:mvn/version "0.49.2"}
+                                        hiccup/hiccup        {:mvn/version "2.0.0-RC3"}
+                                        garden/garden        {:mvn/version "1.3.10"}}
+                          :exec-fn client.build/render-page}
            :client {:extra-paths ["src/client"]
                     :jvm-opts ["-Xmx10G"]
                     :extra-deps  {nrepl/nrepl          {:mvn/version "0.9.0"}

@@ -1,4 +1,5 @@
-(ns client.template)
+(ns client.template
+  (:require [clojure.string :as string]))
 
 (defn neo-brutal-button
   ([attr & contents]
@@ -12,6 +13,39 @@
     {:placeholder "f(x, y) -> z"}
     attr)])
 
+(defn neo-brutal-switch [attr]
+  [:div.range-container
+   attr
+   [:label {:for (get attr :id)} (get attr :id)]
+   [:input
+    {:type "range"
+     :_ "on change me.setAttribute('switch', event.target.value)"
+     :id (get attr :id),
+     :name (get attr :id)
+     :min "0",
+     :max "1",
+     :step "1",
+     :value "0"}]])
+
+(defn signals [& switches]
+  [:div
+   {:class "neo-box-content signals"
+    :id "signals"
+    :_ "on change send solveCircuit(value: me as Values) to document"}
+   switches])
+
+(defn footer []
+  [:footer.footer
+   [:div.title-2 "About Organism"]
+   [:p.intro-p "A demonstrative front-end for " [:code "Organisms"] " , work in progress " [:a {:href "https://github.com/LucaPanofsky/symbolic_neural_networks"} "GitHub"]]
+   [:div.title-3 "Language"]
+   [:pre.example
+    (string/join "\n"
+                 ["neuron-1(arg_1, ..., arg_n) -> output"
+                  "\n. . .\n"
+                  "neuron-m(arg_1, ..., arg_l) -> output"])]
+   [:p.explain-p "Each neuron must produce exactly one output. Multiple outputs are not currently supported."]])
+
 (defn page []
   [:html
    [:meta {:charset "UTF-8"}]
@@ -19,8 +53,9 @@
    [:meta
     {:name "viewport", :content "width=device-width, initial-scale=1.0"}]
    [:link {:rel "stylesheet", :href "/css/main.css"}]
+   [:link {:rel "stylesheet", :href "/css/reset.css"}]
    [:title "Browser Starter"]
-   [:header [:h1 "Header"]]
+   [:header [:h1.title "Organisms: symbolic neural networks"]]
    [:main
     [:section
      {:class "sidebar"}
@@ -28,60 +63,33 @@
       {:class "box box1"}
       [:div
        {:class "button-group"}
-       (neo-brutal-button {} "reset")
-       (neo-brutal-button {} "compile")]
+       (neo-brutal-button
+        {:_ "on click send resetCircuit to document"}
+        "reset")
+       (neo-brutal-button
+        {:_ "on click get the next <textarea/> 
+             send compileCircuit(value: result.value) to document 
+             end"}
+        "draw circuit")]
       (neo-brutal-text-area {})]
      [:div
       {:class "box box2"}
+      [:p "Signals"]
       [:div
-       {:class "button-group"}
-       [:button {:class "neo-brutal-btn"} "Button 1"]
-       [:button {:class "neo-brutal-btn"} "Button 2"]]
-      [:div
-       {:class "neo-box-content signals"}
-       [:div
-        {:class "range-container"}
-        [:label {:for "range1"} "Range 1"]
-        [:input
-         {:type "range",
-          :id "range1",
-          :min "0",
-          :max "1",
-          :step "1",
-          :value "0"}]]
-       [:div
-        {:class "range-container"}
-        [:label {:for "range2"} "Range 2"]
-        [:input
-         {:type "range",
-          :id "range2",
-          :min "0",
-          :max "1",
-          :step "1",
-          :value "0"}]]
-       [:div
-        {:class "range-container"}
-        [:label {:for "range3"} "Range 3"]
-        [:input
-         {:type "range",
-          :id "range3",
-          :min "0",
-          :max "1",
-          :step "1",
-          :value "0"}]]
-       [:div
-        {:class "range-container"}
-        [:label {:for "range4"} "Range 4"]
-        [:input
-         {:type "range",
-          :id "range4",
-          :min "0",
-          :max "1",
-          :step "1",
-          :value "0"}]]]]
-     [:div
-      {:class "box box3"}
-      [:button {:class "neo-brutal-btn"} "Boolean Formula"]]]
-    [:section {:class "content"} [:p "Main content here"]]]
-   [:footer [:p "Footer"]]
+       {:class "neo-box-content signals"
+        :id "signals"}]]]
+    [:section.content-column
+     [:div.column-buttons
+      [:div (neo-brutal-button
+             {:_ "on click send compileBooleanFormula to document end"}
+             "Decision Diagram")]
+      [:div (neo-brutal-button
+             {:_ "on click send exportCircuit to document end"}
+             "Export")]]
+     [:section {:class "content"}
+      [:div.diagram-container
+       [:pre {:id "diagram"}]]]]]
+   (footer)
+   [:script {:src "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"}]
+   [:script {:src "https://unpkg.com/hyperscript.org@0.9.14"}]
    [:script {:src "/js/main.js"}]])
