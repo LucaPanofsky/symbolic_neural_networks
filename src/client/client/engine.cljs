@@ -60,11 +60,64 @@
      {}
      (vals index))))
 
+(comment "Patch, the entire algorithm should be reviewed")
+(defn compress-nodes [index]
+  (let [identicals (filter
+                    #(> (count %) 1)
+                    (-> (group-by :children (remove :outcome (vals index)))
+                        (dissoc nil)
+                        vals))
+        translate-identicals (reduce merge
+                                     (map
+                                      (fn [p]
+                                        (let [new-id (string/join "-" (map :id p))]
+                                          {(:id (first p))  new-id
+                                           (:id (second p)) new-id}))
+                                      identicals))
+        to-remove (into #{} (mapcat #(map :id %) identicals))
+        cleaned   (reduce
+                   (fn [a v]
+                     (if
+                      (to-remove (:id v))
+                       a
+                       (assoc
+                        a
+                        (:id v)
+                        (update
+                         v
+                         :children
+                         (fn [children]
+                           (mapv
+                            (fn [c] (if-let [t (get translate-identicals c)]
+                                      t
+                                      c))
+                            children))))))
+                   {}
+                   (vals index))]
+    (reduce
+     (fn [a v]
+       (let [new-id (string/join "-" (map :id v))
+             new-v  (-> (first v)
+                        (assoc :id new-id))]
+         (assoc
+          a
+          new-id
+          new-v)))
+     cleaned
+     identicals)))
+
+(defn iterate-compress [index]
+  (let [result (compress-nodes index)]
+    (if (= (count result) (count index))
+      result
+      (recur result))))
+
 (defn to-decision-diagram [circuit]
   (-> circuit
       equilibrium/boolean-function
       flatten-boolean-network
-      compress-outcomes))
+      compress-outcomes
+      iterate-compress))
 
 (def state (atom {}))
 
@@ -99,9 +152,9 @@
                    (when new
                      (let [signals-elt (crate/html (template/signals (signals instance)))
                            dom         (js/document.getElementById "signals")]
-                       (set!
-                        (.. ^js dom -outerHTML)
-                        (.. ^js signals-elt -outerHTML))
+                       (js/Idiomorph.morph
+                        dom
+                        signals-elt)
                        (.processNode js/window._hyperscript (js/document.getElementById "signals"))
                        (put-instance! instance)))))))))
 
@@ -123,7 +176,7 @@
     (js/console.log "Instance:\n" instance)
     (render-diagram! {:instance instance :new true})))
 
-(defn handler-solve-circuit [^js event]
+(defn handler-solve-circuit [^js event] 
   (let [values (js->clj (.. event -detail -value))
         model  (into {} (keep (fn [[k v]] (when (= v "1") [(symbol k) (symbol k)])) values))
         solution (equilibrium/common-knowledge (get-instance!) model)]

@@ -8,6 +8,11 @@
             (if (protocol/something? (protocol/content (protocol/get-cell circuit c)))
               " -.-> "
               " --> "))
+          (render-out-link [n]
+            (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) (protocol/arg-cells n))]
+              (if (every? protocol/something? args)
+                " -.-> "
+                " --> ")))
           (render-cell-class [c]
             (if (protocol/something? (protocol/content (protocol/get-cell circuit c)))
               (if (protocol/contradiction? (protocol/content (protocol/get-cell circuit c)))
@@ -24,7 +29,7 @@
                    (fn [n]
                      (let [args (for [i (protocol/arg-cells n)]
                                   (str i (render-arg-link i) (protocol/tag n)))
-                           out  (str (protocol/tag n) (render-arg-link (protocol/to-cell n)) (protocol/to-cell n))]
+                           out  (str (protocol/tag n) (render-out-link n) (protocol/to-cell n))]
                        (cons (render-neuron-class n) (cons out args))))
                    neurons)
           cells   (->> (map protocol/tag (protocol/cells circuit))

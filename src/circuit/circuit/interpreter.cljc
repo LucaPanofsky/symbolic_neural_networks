@@ -11,7 +11,7 @@
   newline = #'\\n'
   whitespace = #'\\s+'
   arrow = '->'
-  <symbol> = #'[a-zA-Z0-9!?\\-_.@#]+'
+  <symbol> = #'[a-zA-Z0-9!?\\-_.@#\\/]+'
   ")
 
 (def parser (insta/parser circuit-grammar))
@@ -23,6 +23,11 @@
   (let [parsed (parser c-string)
         neurons (map (fn [n] (apply neuron (map symbol (rest n)))) (rest parsed))]
     (apply circuit (cons 'editor-circuit neurons))))
+
+(read-circuit
+ "bar/yolo(a, b) -> c
+  yin(c, d) -> e
+  yang(d, e) -> f")
 
 (read-circuit
  "bar(a, b) -> c
