@@ -98,15 +98,12 @@ header h1.title {
     letter-spacing: -2px;
     filter: blur(0.5px);
     color: rgb(255, 255, 255);
-    /* Neon cyan */
-    text-shadow:
-        0 0 1px rgb(207, 231, 231),
-        0 0 1px rgb(0, 0, 0),
-        0 0 1px rgba(0, 0, 0, 0.8),
-        1px 1px 3px rgba(255, 0, 0, 0.6);
+    text-shadow: 4px 5px 2px black;
+    /* Hard black shadow for a brutalist effect */
     position: relative;
     user-select: none;
 }
+
 
 /* Neo-Brutalist Button */
 .neo-brutal-btn {
@@ -150,6 +147,7 @@ header h1.title {
     padding: 15px;
     font-size: 1rem;
     min-width: 250px;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 .neo-textarea:focus {

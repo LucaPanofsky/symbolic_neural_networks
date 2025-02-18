@@ -19,7 +19,8 @@
    [:label {:for (get attr :id)} (get attr :id)]
    [:input
     {:type "range"
-     :_ "on change me.setAttribute('switch', event.target.value)"
+     :_ "on change me.setAttribute('switch', event.target.value) 
+         then send solveCircuit(value: #signals as Values) to document"
      :id (get attr :id),
      :name (get attr :id)
      :min "0",
@@ -30,21 +31,20 @@
 (defn signals [& switches]
   [:div
    {:class "neo-box-content signals"
-    :id "signals"
-    :_ "on change send solveCircuit(value: me as Values) to document"}
+    :id "signals"}
    switches])
 
 (defn footer []
   [:footer.footer
    [:div.title-2 "About Organism"]
-   [:p.intro-p "A demonstrative front-end for " [:code "Organisms"] " , work in progress " [:a {:href "https://github.com/LucaPanofsky/symbolic_neural_networks"} "GitHub"]]
+   [:p.intro-p "work in progress " [:a {:href "https://github.com/LucaPanofsky/symbolic_neural_networks"} "GitHub"]]
    [:div.title-3 "Language"]
    [:pre.example
     (string/join "\n"
                  ["neuron-1(arg_1, ..., arg_n) -> output"
                   "\n. . .\n"
                   "neuron-m(arg_1, ..., arg_l) -> output"])]
-   [:p.explain-p "Each neuron must produce exactly one output. Multiple outputs are not currently supported."]])
+   [:p.explain-p "Each neuron must produce exactly one output."]])
 
 (defn page []
   [:html
@@ -92,4 +92,5 @@
    (footer)
    [:script {:src "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"}]
    [:script {:src "https://unpkg.com/hyperscript.org@0.9.14"}]
+   [:script {:src "https://unpkg.com/idiomorph@0.7.1"}]
    [:script {:src "js/main.js"}]])
