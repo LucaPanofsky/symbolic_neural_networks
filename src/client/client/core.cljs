@@ -13,6 +13,8 @@
    (fn [x]
      (js/window.mermaid.initialize
       #js{:startOnLoad false
+          :maxTextSize 90000
+          :maxEdges 10000
           :flowchart #js{:useMaxWidth true, :htmlLabels true, :defaultRenderer "elk"}})))
   (register-events client-engine/event-dispatch))
 

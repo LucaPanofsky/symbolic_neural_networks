@@ -61,8 +61,9 @@
                         (if (:outcome node)
                           (render-outcome-node node)
                           (render-variable-node node))))
-                     (string/join "\n"))]
-      (str
-       "\nflowchart TB\n\n"
-       nodes
-       "\nlinkStyle default stroke:gray,stroke-width:1px,color:red;\n"))))
+                     (string/join "\n"))
+          result (str
+                  "\nflowchart TB\n\n"
+                  nodes
+                  "\nlinkStyle default stroke:gray,stroke-width:1px,color:red;\n")]
+      result)))

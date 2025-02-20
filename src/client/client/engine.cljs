@@ -8,7 +8,8 @@
    [client.mermaid :as mermaid-diagram]
    [client.template :as template]
    [circuit.protocol :as protocol]
-   [crate.core :as crate]))
+   [crate.core :as crate]
+   [clojure.set :as set]))
 
 (defn flatten-boolean-network [tree]
   (let [id-   (atom 0)
@@ -38,76 +39,75 @@
 (defn compress-outcomes [index]
   (let [outcomes        (filter :outcome (vals index))
         outcomes-index  (-> (group-by :value outcomes)
-                            (update-vals (fn [x] (str "outcome_" (hash (into #{} (map :id x)))))))]
-    (reduce
-     (fn [a v]
-       (if (:outcome v)
-         (let [id (get outcomes-index (:value v))]
-           (assoc a id (assoc v :id id)))
-         (assoc a
-                (:id v)
-                (update v :children
-                        (fn [children]
-                          (mapv
-                           (fn [c]
-                             (if (clojure.string/includes? c "-outcome")
-                               (let [original (get index c)
-                                     value    (:value original)
-                                     new-id   (get outcomes-index value)]
-                                 new-id)
-                               c))
-                           children))))))
-     {}
-     (vals index))))
-
-(comment "Patch, the entire algorithm should be reviewed")
-(defn compress-nodes [index]
-  (let [identicals (filter
-                    #(> (count %) 1)
-                    (-> (group-by :children (remove :outcome (vals index)))
-                        (dissoc nil)
-                        vals))
-        translate-identicals (reduce merge
-                                     (map
-                                      (fn [p]
-                                        (let [new-id (string/join "-" (map :id p))]
-                                          {(:id (first p))  new-id
-                                           (:id (second p)) new-id}))
-                                      identicals))
-        to-remove (into #{} (mapcat #(map :id %) identicals))
-        cleaned   (reduce
-                   (fn [a v]
-                     (if
-                      (to-remove (:id v))
-                       a
-                       (assoc
-                        a
-                        (:id v)
+                            (update-vals (fn [x] (str "outcome_" (hash (into #{} (map :id x)))))))
+        outcomes-nodes  (set/map-invert outcomes-index)
+        r-1 (->> (vals index)
+                 (remove :outcome)
+                 (map (fn [node]
                         (update
-                         v
+                         node
                          :children
                          (fn [children]
                            (mapv
-                            (fn [c] (if-let [t (get translate-identicals c)]
-                                      t
-                                      c))
-                            children))))))
-                   {}
-                   (vals index))]
-    (reduce
-     (fn [a v]
-       (let [new-id (string/join "-" (map :id v))
-             new-v  (-> (first v)
-                        (assoc :id new-id))]
-         (assoc
-          a
-          new-id
-          new-v)))
-     cleaned
-     identicals)))
+                            (fn [c]
+                              (let [x (get index c)]
+                                (if (:outcome x)
+                                  (get outcomes-index (:value x))
+                                  c)))
+                            children))))))]
+    (->> (concat
+          r-1
+          (map
+           (fn [[k v]]
+             {:outcome true
+              :id k
+              :value v})
+           outcomes-nodes))
+         (map (juxt :id identity))
+         (into {}))))
+
+(defn compress-nodes-dev [index]
+  (let [group-1 (->> (vals index)
+                     (filter :variable)
+                     (group-by :children)
+                     (keep (fn [[_k v]]
+                             (when (> (count v) 1)
+                               [(:variable (first v)) v])))
+                     (into {}))
+        remove-set (->> (vals group-1)
+                        (mapcat (fn [coll] (map :id coll)))
+                        (into #{}))
+        translate  (->> group-1
+                        (map
+                         (fn [[k v]]
+                           (let [new-id (str k "_" (hash v))]
+                             [(str k "_" (hash v)) (map #(assoc % :new-id new-id) v)])))
+                        (into {}))
+        translate-map (->> (mapcat identity (vals translate))
+                           (map (juxt :id :new-id))
+                           (into {}))
+        new-nodes  (->> translate
+                        (map (fn [[k v]]
+                               {:id k
+                                :variable (:variable (first v))
+                                :children (:children (first v))})))]
+
+    (->> (vals index)
+         (remove #(contains? remove-set (:id %)))
+         (map (fn [node]
+                (update
+                 node
+                 :children
+                 (fn [children]
+                   (mapv
+                    (fn [c] (or (get translate-map c) c))
+                    children)))))
+         (concat new-nodes)
+         (map (juxt :id identity))
+         (into {}))))
 
 (defn iterate-compress [index]
-  (let [result (compress-nodes index)]
+  (let [result (compress-nodes-dev (compress-outcomes index))]
     (if (= (count result) (count index))
       result
       (recur result))))
@@ -116,7 +116,6 @@
   (-> circuit
       equilibrium/boolean-function
       flatten-boolean-network
-      compress-outcomes
       iterate-compress))
 
 (def state (atom {}))
@@ -176,7 +175,7 @@
     (js/console.log "Instance:\n" instance)
     (render-diagram! {:instance instance :new true})))
 
-(defn handler-solve-circuit [^js event] 
+(defn handler-solve-circuit [^js event]
   (let [values (js->clj (.. event -detail -value))
         model  (into {} (keep (fn [[k v]] (when (= v "1") [(symbol k) (symbol k)])) values))
         solution (equilibrium/common-knowledge (get-instance!) model)]
