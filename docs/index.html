@@ -5,4 +5,7 @@
 
 . . .
 
-neuron-m(arg_1, ..., arg_l) -> output</pre><p class="explain-p">Each neuron must produce exactly one output.</p></footer><script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script><script src="https://unpkg.com/hyperscript.org@0.9.14"></script><script src="https://unpkg.com/idiomorph@0.7.1"></script><script src="js/main.js"></script></html></html>
+neuron-m(arg_1, ..., arg_l) -> output</pre><p class="explain-p">Each neuron must produce exactly one output.</p><br><div class="title-3">switch, inverter</div><pre class="example">inverter(p-is-true) -> p-is-false
+switch(p-is-true, t-label) -> rule
+switch(p-is-false, f-label) -> rule
+inverter(p-is-false) -> p-is-true</pre><p class="explain-p">The switch neuron activates if and only if inputs are sufficiently informative and we know that the first value is true.</p></footer><script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script><script src="https://unpkg.com/hyperscript.org@0.9.14"></script><script src="https://unpkg.com/idiomorph@0.7.1"></script><script src="js/main.js"></script></html></html>

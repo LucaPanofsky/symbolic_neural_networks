@@ -6,7 +6,17 @@
 
 (defn symbolic-apply [t & args] (cons t args))
 
-(defrecord SymbolicNeuron [_name _sources _to _action _strategy]
+(defn switch-apply [test if-test-true]
+  (if (true? test)
+    if-test-true
+    protocol/nothing))
+
+(defn can-switch-activate? [test if-test-true]
+  (and (true? test) (protocol/something? if-test-true)))
+
+(defrecord SymbolicNeuron [_name _type-of _sources _to _action _strategy]
+  protocol/IType-of
+  (type-of [_this] _type-of)
   protocol/ITag
   (tag [_this] _name)
   protocol/ISymbolicNeuron
@@ -44,6 +54,52 @@
               (protocol/get-cell _to)
               (protocol/merge-information increment _name)))))))
 
+(defrecord SymbolicSwitch [_name _type-of _sources _to]
+  protocol/IType-of
+  (type-of [_this] _type-of)
+  protocol/ITag
+  (tag [_this] _name)
+  protocol/ISymbolicNeuron
+  (arg-cells [_this] _sources)
+  (to-cell [_this] _to)
+  (obey [_ circuit]
+    (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) _sources)
+          increment (switch-apply (first args) (second args))]
+      (-> circuit
+          (protocol/get-cell _to)
+          (protocol/merge-information increment _name))))
+  (activate [_ circuit]
+    (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) _sources)]
+      (if (can-switch-activate? (first args) (second args))
+        (let [increment (switch-apply (first args) (second args))]
+          (-> circuit
+              (protocol/get-cell _to)
+              (protocol/merge-information increment _name)))
+        (protocol/get-cell circuit _to)))))
+
+(defrecord SymbolicInverter [_name _type-of _sources _to]
+  protocol/IType-of
+  (type-of [_this] _type-of)
+  protocol/ITag
+  (tag [_this] _name)
+  protocol/ISymbolicNeuron
+  (arg-cells [_this] _sources)
+  (to-cell [_this] _to)
+  (obey [_ circuit]
+    (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) _sources)
+          increment (not (first args))]
+      (-> circuit
+          (protocol/get-cell _to)
+          (protocol/merge-information increment _name))))
+  (activate [_ circuit]
+    (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) _sources)]
+      (if (some protocol/nothing? args)
+        (protocol/get-cell circuit _to)
+        (let [increment (not (first args))]
+          (-> circuit
+              (protocol/get-cell _to)
+              (protocol/merge-information increment _name)))))))
+
 (defrecord SymbolicRule [_name _sources _to _action _strategy _rule]
   protocol/ITag
   (tag [_this] _name)
@@ -54,21 +110,32 @@
   (activate [this circuit]
     (_rule this circuit)))
 
-(defrecord SymbolicCell [_name _content _signals]
+(defn cell-merge-info- [this increment signal]
+  (let [merged (information/generic-merge-bit (protocol/content this) increment)
+        merged (if (protocol/contradiction? merged)
+                 (assoc merged :_data {:coordinate {:tag signal}})
+                 merged)]
+    (if signal
+      (protocol/assume this merged signal)
+      (protocol/assume this merged))))
+
+(defrecord SymbolicCell [_name _content _signals _type-of]
+  protocol/IType-of
+  (type-of [_this] _type-of)
+  (assume-type [this this-type]
+    (if (map? this-type)
+      (-> this
+          (assoc :_type-of (:type this-type))
+          (assoc :_content (or (:content this-type) _content)))
+      (-> this
+          (assoc :_type-of this-type))))
   protocol/IMerge
   (merge-information [this increment signal]
-    (let [merged (information/generic-merge-bit _content increment)
-          merged (if (protocol/contradiction? merged)
-                   (assoc merged :_data {:coordinate {:tag signal}})
-                   merged)]
-      (-> this
-          (assoc :_content merged)
-          (update :_signals conj signal))))
+    (cell-merge-info- this increment signal))
   protocol/ITag
   (tag [_this] _name)
   protocol/ISymbolicCell
-  (assume [this bit]
-    (assoc this :_content bit))
+  (assume [this bit] (assoc this :_content bit))
   (assume [this bit signal]
     (-> this
         (assoc :_content bit)
@@ -78,9 +145,9 @@
 
 (defn cell
   "Create a symbolic cell"
-  ([_name])
+  ([_name] (cell _name protocol/nothing))
   ([_name thing]
-   (->SymbolicCell cell thing #{})))
+   (->SymbolicCell _name thing #{} nil)))
 
 (defrecord SymbolicCircuit [_name _neurons _cells _structure _order _solution]
   #?(:clj clojure.lang.IFn :cljs IFn)
@@ -120,6 +187,17 @@
   (tag [_] _name)
   protocol/IGame
   (learn [this facts] (_solution this facts))
+  (types [this impls]
+    (update
+     this
+     :_cells
+     update-vals
+     (fn [cell]
+       (let [impl (or (get impls (protocol/tag cell))
+                      (get impls (keyword (protocol/tag cell))))]
+         (if impl
+           (protocol/assume-type cell impl)
+           cell)))))
   (mechanism [this impls]
     (update
      this
@@ -130,10 +208,7 @@
                       (get impls (keyword (protocol/tag neuron))))]
          (if impl
            (protocol/implement neuron impl)
-           (information/throw-contradiction
-            (information/->contradiction
-             (str "Implementation not found for neuron: " (protocol/tag neuron))
-             {:mechanism impls})))))))
+           neuron)))))
   (solution [_this solution-concept]
     (new SymbolicCircuit
          _name _neurons _cells _structure _order solution-concept))
@@ -157,13 +232,14 @@
      :_cells
      update-vals
      (fn [cell]
-       (let [fact (or (get facts (protocol/tag cell))
-                      (get facts (keyword (protocol/tag cell))))]
-         (if fact
+       (let [fact (get facts (protocol/tag cell))]
+         (if (not (nil? fact))
            (protocol/assume cell fact)
            cell)))))
-  (add-cell [this cell]
-    (assoc-in this [:_cells (protocol/tag cell)] cell))
+  (add-cell [this cell-thing]
+    (if (ident? cell-thing)
+      (assoc-in this [:_cells cell-thing] (cell cell-thing))
+      (assoc-in this [:_cells (protocol/tag cell-thing)] cell-thing)))
   (add-neuron [this neuron]
     (assoc-in this [:_neurons (protocol/tag neuron)] neuron)))
 
@@ -171,6 +247,7 @@
   (let [out            (last cells)
         instance       (->SymbolicNeuron
                         tag
+                        'neuron
                         (butlast cells)
                         out
                         nil
@@ -180,7 +257,41 @@
       ([circuit]
        (reduce
         (fn [circuit cell]
-          (protocol/add-cell circuit (->SymbolicCell cell protocol/nothing #{})))
+          (protocol/add-cell circuit cell))
+        (protocol/add-neuron circuit instance)
+        cells)))))
+
+(defn make-switch [& cells]
+  (let [out            (last cells)
+        tag            (symbol (str "switch__" (name (second cells)) "__eq__" (name out) "__if__" (name (first cells))))
+        instance       (->SymbolicSwitch
+                        tag
+                        'switch
+                        (butlast cells)
+                        out)]
+    (fn join-into
+      ([] (join-into {}))
+      ([circuit]
+       (reduce
+        (fn [circuit cell]
+          (protocol/add-cell circuit cell))
+        (protocol/add-neuron circuit instance)
+        cells)))))
+
+(defn make-inverter [& cells]
+  (let [out            (last cells)
+        tag            (symbol (str "inverter__" (name (first cells)) "__with__" (name out)))
+        instance       (->SymbolicInverter
+                        tag
+                        'inverter
+                        (butlast cells)
+                        out)]
+    (fn join-into
+      ([] (join-into {}))
+      ([circuit]
+       (reduce
+        (fn [circuit cell]
+          (protocol/add-cell circuit cell))
         (protocol/add-neuron circuit instance)
         cells)))))
 
@@ -199,7 +310,7 @@
         ([circuit]
          (reduce
           (fn [circuit cell]
-            (protocol/add-cell circuit (->SymbolicCell cell protocol/nothing #{})))
+            (protocol/add-cell circuit (->SymbolicCell cell protocol/nothing #{} nil)))
           (protocol/add-neuron circuit instance)
           cells))))))
 
@@ -258,3 +369,17 @@
            (-> circuit
                (protocol/get-cell (protocol/to-cell neuron))
                (protocol/merge-information increment (protocol/tag neuron)))))))))
+
+'(def test-rule
+   "I do nothing special but I log myself"
+   (make-rule
+    (fn [neuron circuit]
+      (println "Test rule is deciding ...")
+      (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) (protocol/arg-cells neuron))]
+        (if (test-args neuron circuit)
+          (let [action-fn (partial symbolic-apply (protocol/tag neuron))
+                increment (apply action-fn args)]
+            (-> circuit
+                (protocol/get-cell (protocol/to-cell neuron))
+                (protocol/merge-information increment (protocol/tag neuron))))
+          (protocol/get-cell circuit (protocol/to-cell neuron)))))))

@@ -176,8 +176,22 @@
     (render-diagram! {:instance instance :new true})))
 
 (defn handler-solve-circuit [^js event]
+  (js/console.log "solving circuit:" event)
   (let [values (js->clj (.. event -detail -value))
-        model  (into {} (keep (fn [[k v]] (when (= v "1") [(symbol k) (symbol k)])) values))
+        parse-content #(cond
+                         (= % "true") true
+                         (= % "false") false
+                         :else (symbol %))
+        contents (->> values
+                      (keep (fn [[k v]]
+                              (when (string/starts-with? k "content__")
+                                [(string/replace k "content__" "") (parse-content v)])))
+                      (into {}))
+        _ (js/console.log contents)
+        model  (into {} (keep
+                         (fn [[k v]]
+                           (when (= v "1")
+                             [(symbol k) (get contents k)])) values))
         solution (equilibrium/common-knowledge (get-instance!) model)]
     (js/console.log "Model:" model)
     (js/console.log "Solution:" solution)

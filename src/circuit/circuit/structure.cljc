@@ -41,3 +41,21 @@
    (map
     protocol/tag
     (protocol/cells circuit))))
+
+(defn order-variables [circuit select-variable]
+  (into
+   (sorted-set-by (make-order-comparator circuit))
+   (map
+    protocol/tag
+    (filter (select-variable circuit) (protocol/cells circuit)))))
+
+(defn independent-variable? [circuit tag]
+  (let [h (protocol/structure circuit)
+        a (ancestors h tag)]
+    (empty? a)))
+
+(defn tail-variable? [circuit tag]
+  (let [h (protocol/structure circuit)
+        d (descendants h tag)]
+    (empty? d)))
+

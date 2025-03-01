@@ -15,18 +15,23 @@
 
 (defn neo-brutal-switch [attr]
   [:div.range-container
-   attr
-   [:label {:for (get attr :id)} (get attr :id)]
-   [:input
-    {:type "range"
-     :_ "on change me.setAttribute('switch', event.target.value) 
+   [:label [:div.text (get attr :id)]
+    [:input
+     {:type "range"
+      :_ "on change me.setAttribute('switch', event.target.value) 
          then send solveCircuit(value: #signals as Values) to document"
-     :id (get attr :id),
-     :name (get attr :id)
-     :min "0",
-     :max "1",
-     :step "1",
-     :value "0"}]])
+      :id (get attr :id),
+      :name (get attr :id)
+      :min "0",
+      :max "1",
+      :step "1",
+      :value "0"}]
+    [:select
+     {:name (str "content__" (get attr :id))
+      :_ "on change send solveCircuit(value: #signals as Values) to document"}
+     [:option {:value (get attr :id)} (get attr :id)]
+     [:option {:value "true"} "true"]
+     [:option {:value "false"} "false"]]]])
 
 (defn signals [& switches]
   [:div
@@ -44,7 +49,17 @@
                  ["neuron-1(arg_1, ..., arg_n) -> output"
                   "\n. . .\n"
                   "neuron-m(arg_1, ..., arg_l) -> output"])]
-   [:p.explain-p "Each neuron must produce exactly one output."]])
+   [:p.explain-p "Each neuron must produce exactly one output."]
+   [:br]
+   [:div.title-3 "switch, inverter"]
+   [:pre.example
+    (string/join
+     "\n"
+     ["inverter(p-is-true) -> p-is-false"
+      "switch(p-is-true, t-label) -> rule"
+      "switch(p-is-false, f-label) -> rule"
+      "inverter(p-is-false) -> p-is-true"])]
+   [:p.explain-p "The switch neuron activates if and only if inputs are sufficiently informative and we know that the first value is true."]])
 
 (defn page []
   [:html

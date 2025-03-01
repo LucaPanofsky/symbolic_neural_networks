@@ -4,22 +4,6 @@
    [circuit.structure :as structure]
    [clojure.set :as set]))
 
-(defn eval-circuit [circuit model-instantiation]
-  ;; We reduce circuit by applying 
-  ;; neurons in topological order.  
-  (reduce
-   (fn [circuit neuron]
-     (protocol/acknowledge
-      circuit
-      (protocol/activate neuron circuit)))
-   ;; this injects knowledge into cells (model instantiation)
-   (protocol/assimilate
-    circuit
-    model-instantiation)
-   (map
-    (partial protocol/get-neuron circuit)
-    (protocol/order circuit))))
-
 (defn topological-order
   "Evaluate the the game in linear topological order. 
    This is equivalent to the lisp eval path. 

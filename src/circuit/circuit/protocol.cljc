@@ -22,6 +22,8 @@
     (solution [abstract-circuit variable instantiation])")
   (mechanism [this implementations]
     "Lift symbolic neurons to concrete implementations")
+  (types [this implementations]
+    "Lift symbolic cells so that they know the information they know is of type ..")
   (learn [this facts] "Move the game foreward from knowledge derived from facts."))
 
 (defprotocol IOrganism
@@ -46,6 +48,11 @@
 (defprotocol ITag
   "A protocol to tag things."
   (tag [this] "Return symbolic tag"))
+
+(defprotocol IType-of
+  "A protocol for typed things"
+  (assume-type [this this-type] "Assume type is this-type")
+  (type-of [this] "Return symbolic type"))
 
 (defprotocol ISymbolicNeuron
   (arg-cells [this]

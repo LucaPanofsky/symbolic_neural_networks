@@ -168,6 +168,31 @@ header h1.title {
     color: var(--text-color);
     text-align: end;
     font-weight: 800;
+    text-wrap: nowrap;
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    gap: 10px;
+}
+
+div.text {
+    min-width: 12ch;
+    max-width: 27ch;
+    white-space: nowrap;
+    /* Prevent text from wrapping to the next line */
+    overflow: hidden;
+    /* Hide any content that overflows the container */
+    text-overflow: ellipsis;
+    /* Display an ellipsis (...) when text overflows */
+}
+
+.range-container select {
+    background: #0a0a0a;
+    color: white;
+    padding-inline: 10px;
+    padding-block: 5px;
+    width: -webkit-fill-available;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 .range-container input[type="range"] {
@@ -195,11 +220,12 @@ header h1.title {
 }
 
 .signals {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-rows: auto;
     column-gap: 10px;
     background: #040404;
     width: 100%;
+    row-gap: 10px;
 }
 
 #diagram {
@@ -226,11 +252,51 @@ header h1.title {
 }
 
 .info>rect {
-    fill: #d6efb0 !important;
+    fill: #e5ffbf !important;
+    stroke-width: 4px !important;
+}
+
+.info>polygon {
+    fill: #e5ffbf !important;
+    stroke-width: 4px !important;
+}
+
+.info>g>path {
+    fill: #e5ffbf !important;
+    stroke-width: 4px !important;
+}
+
+.false>rect {
+    fill: #ffbcb2 !important;
+    stroke-width: 4px !important;
+}
+
+.false>polygon {
+    fill: #ffbcb2 !important;
+    stroke-width: 4px !important;
+}
+
+.false>g>path {
+    fill: #ffbcb2 !important;
+    stroke-width: 4px !important;
+}
+
+.true>rect {
+    fill: #5ece5e !important;
+    stroke-width: 4px !important;
+}
+
+.true>g>path {
+    fill: #5ece5e !important;
     stroke-width: 4px !important;
 }
 
 .contradiction>rect {
+    fill: #f1d487 !important;
+    stroke-width: 4px !important;
+}
+
+.contradiction>g>path {
     fill: #f1d487 !important;
     stroke-width: 4px !important;
 }

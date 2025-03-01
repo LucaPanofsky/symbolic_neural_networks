@@ -26,9 +26,6 @@ input, button, textarea, select {
     background: none;
     border: none;
     outline: none;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
 }
 
 /* Fix for form element appearance in different browsers */

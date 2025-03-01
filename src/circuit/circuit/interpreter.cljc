@@ -1,6 +1,7 @@
 (ns circuit.interpreter
   (:require [instaparse.core :as insta]
-            [circuit.core :as core]))
+            [circuit.core :as core]
+            [clojure.string :as string]))
 
 (def circuit-grammar
   "
@@ -17,31 +18,32 @@
 (def parser (insta/parser circuit-grammar))
 
 (def neuron core/make-neuron)
+(def switch core/make-switch)
 (def circuit core/symbolic-neural-network)
+(def inverter core/make-inverter)
+
+(defn switch? [n] (string/starts-with? (second n) "switch"))
+(defn inverter? [n] (string/starts-with? (second n) "inverter"))
+
+(defn read-neuron [n]
+  (cond
+    (switch? n) (apply switch (map symbol (drop 2 n)))
+    (inverter? n) (apply inverter (map symbol (drop 2 n)))
+    :else (apply neuron (map symbol (rest n)))))
 
 (defn read-circuit [c-string]
   (let [parsed (parser c-string)
-        neurons (map (fn [n] (apply neuron (map symbol (rest n)))) (rest parsed))]
+        neurons (map read-neuron (rest parsed))]
     (apply circuit (cons 'editor-circuit neurons))))
 
-(read-circuit
- "bar/yolo(a, b) -> c
-  yin(c, d) -> e
-  yang(d, e) -> f")
-
-(read-circuit
- "bar(a, b) -> c
-      yin(c, d) -> e
-      yang(d, e) -> f
-      user@domain(input1, input2, input3) -> output#123")
 
 (comment
   (def circuit-str
     "f(x, y) -> z
 g(q, m) -> z
-k(m, x) -> y")
+switch(m, x) -> y")
 
-  (parser circuit-str)
+  (read-circuit circuit-str)
 
   "This works fine, I just want to add a YAML front matter"
   "Example:
@@ -51,3 +53,50 @@ k(m, x) -> y")
    ---
    foo(a,b) -> c
    ...")
+
+(defn separe-front-matter
+  "Returns a map
+   ```
+   {:front-matter ... 
+    :document ...}
+   ```
+   The front matter is any content of the form 
+   ```
+   ---
+   contents ..
+   ---
+   ```"
+  [document]
+  (let [front-matter-pattern #"(?s)^---\n(.*?)\n---\n"
+        match (re-find front-matter-pattern document)]
+    (when match
+      (let [front-matter (-> match (second))]
+        {:front-matter front-matter
+         :document (-> (string/replace document "---" "")
+                       (string/replace front-matter "")
+                       (string/trim))}))))
+
+
+(def document
+  "---
+title: My Awesome Post
+author: John Doe
+tags:
+  - ClojureScript
+  - YAML
+---
+This is the content of the post.
+It can have multiple lines.
+")
+
+
+(separe-front-matter document)
+
+(def example-front-matter-circuit
+  "---
+name: my-circuit
+solution: common-knowledge
+---
+foo(a,b) -> c")
+
+(separe-front-matter example-front-matter-circuit)
