@@ -1,5 +1,5 @@
 (ns circuit.structure
-  (:require 
+  (:require
    [circuit.protocol :as protocol]
    [circuit.utils :as utils]))
 
@@ -35,6 +35,7 @@
     protocol/tag
     (protocol/neurons circuit))))
 
+;; this does not work
 (defn variables-topological-order [circuit]
   (into
    (sorted-set-by (make-order-comparator circuit))
@@ -42,19 +43,21 @@
     protocol/tag
     (protocol/cells circuit))))
 
-(defn order-variables [circuit select-variable]
-  (into
-   (sorted-set-by (make-order-comparator circuit))
-   (map
-    protocol/tag
-    (filter (select-variable circuit) (protocol/cells circuit)))))
+(defn dev-order-variables [circuit select-variable]
+  (let [order    (protocol/order circuit)]
+    (->> (map (partial protocol/get-neuron circuit) order)
+         (mapcat (fn [n] (concat (protocol/arg-cells n) (list (protocol/to-cell n)))))
+         (filter (fn [c] ((select-variable circuit) c)))
+         (reverse)
+         (distinct)
+         (reverse))))
 
 (defn independent-variable? [circuit tag]
   (let [h (protocol/structure circuit)
         a (ancestors h tag)]
     (empty? a)))
 
-(defn tail-variable? [circuit tag]
+(defn outcome-variable? [circuit tag]
   (let [h (protocol/structure circuit)
         d (descendants h tag)]
     (empty? d)))

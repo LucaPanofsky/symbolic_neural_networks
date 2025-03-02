@@ -2,7 +2,8 @@
   (:require [circuit.protocol :as protocol]
             [circuit.structure :as structure]
             [circuit.equilibrium :as equilibrium]
-            [circuit.information :as information]))
+            [circuit.information :as information]
+            [clojure.set :as set]))
 
 (defn symbolic-apply [t & args] (cons t args))
 
@@ -137,9 +138,13 @@
   protocol/ISymbolicCell
   (assume [this bit] (assoc this :_content bit))
   (assume [this bit signal]
-    (-> this
-        (assoc :_content bit)
-        (update :_signals conj signal)))
+    (if (set? signal)
+      (-> this
+          (assoc :_content bit)
+          (update :_signals set/union signal))
+      (-> this
+          (assoc :_content bit)
+          (update :_signals conj signal))))
   (content [_] _content)
   (signals [_] _signals))
 
