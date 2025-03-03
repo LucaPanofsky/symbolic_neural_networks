@@ -65,7 +65,8 @@
   (obey      [this circuit]
     "Activate no matter what.")
   (implement [this fn-]
-    "Install an implementation on the Symbolic Neuron"))
+    "Install an implementation on the Symbolic Neuron")
+  (activate? [this args] "Returns true IFF can activate"))
 
 (defprotocol ISymbolicCell
   (assume  [this bit] [this bit signal]

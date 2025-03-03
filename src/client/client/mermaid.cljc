@@ -15,6 +15,10 @@
                 (if (and (true? (first args)) (every? protocol/something? args))
                   " -.-> "
                   " --> ")
+                (= 'or-switch (protocol/type-of n))
+                (if (some true? args)
+                  " -.-> "
+                  " --> ")
                 :else
                 (if (every? protocol/something? args)
                   " -.-> "
@@ -36,6 +40,10 @@
                 (if (and (every? protocol/something? args) (true? (first args)))
                   (str (protocol/tag n) ":::info")
                   (str (protocol/tag n) ":::empty"))
+                (= 'or-switch (protocol/type-of n))
+                (if (some true? args)
+                  (str (protocol/tag n) ":::info")
+                  (str (protocol/tag n) ":::empty"))
                 :else
                 (if (every? protocol/something? args)
                   (str (protocol/tag n) ":::info")
@@ -44,6 +52,10 @@
             (cond 
               (= (protocol/type-of n) 'switch)
               (str (protocol/tag n) "@{ shape: curv-trap, label: 'SWITCH'}")
+              (= (protocol/type-of n) 'or-switch)
+              (str (protocol/tag n) "@{ shape: hex, label: 'OR SWITCH'}")
+              (= (protocol/type-of n) 'and)
+              (str (protocol/tag n) "@{ shape: delay, label: 'AND'}")
               (= (protocol/type-of n) 'inverter)
               (str (protocol/tag n) "@{ shape: tri, label: 'NOT'}")
               :else (str (protocol/tag n) "[/" (protocol/tag n) "/]")))]

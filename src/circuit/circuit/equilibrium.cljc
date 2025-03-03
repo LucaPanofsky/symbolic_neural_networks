@@ -45,9 +45,18 @@
   (let [neuron (protocol/get-neuron circuit n)
         to     (protocol/get-cell circuit (protocol/to-cell neuron))
         args   (map (comp protocol/content (partial protocol/get-cell circuit)) (protocol/arg-cells neuron))]
-    (and
-     (not (contains? (protocol/signals to) n))
-     (every? protocol/something? args))))
+    (cond
+      (= (protocol/type-of neuron) 'switch)
+      (and
+       (not (contains? (protocol/signals to) n))
+       (true? (boolean (first args)))
+       (every? protocol/something? args))
+      (= (protocol/type-of neuron) 'or-switch)
+      (some true? args)
+      :else
+      (and
+       (not (contains? (protocol/signals to) n))
+       (every? protocol/something? args)))))
 
 (defn common-knowledge
   "WIP: Common Knwoledge solution concept."

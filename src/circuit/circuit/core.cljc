@@ -3,7 +3,8 @@
             [circuit.structure :as structure]
             [circuit.equilibrium :as equilibrium]
             [circuit.information :as information]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [clojure.string :as string]))
 
 (defn symbolic-apply [t & args] (cons t args))
 
@@ -12,8 +13,16 @@
     if-test-true
     protocol/nothing))
 
+(defn or-switch-apply [& args] (some true? args))
+(defn can-or-switch-activate? [& args] 
+  (println "can or switch activate" args (some true? args))
+  (some true? args))
+
 (defn can-switch-activate? [test if-test-true]
   (and (true? test) (protocol/something? if-test-true)))
+
+(defn generic-can-activate? [args]
+  (every? protocol/something? args))
 
 (defrecord SymbolicNeuron [_name _type-of _sources _to _action _strategy]
   protocol/IType-of
@@ -24,6 +33,7 @@
   (arg-cells [_this] _sources)
   (to-cell [_this] _to)
   (implement [this impl] (assoc this :_action impl))
+  (activate? [this args])
   (obey [_ circuit]
     (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) _sources)
           action-fn (or _action (partial symbolic-apply _name))
@@ -65,14 +75,37 @@
   (to-cell [_this] _to)
   (obey [_ circuit]
     (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) _sources)
-          increment (switch-apply (first args) (second args))]
+          increment (apply switch-apply args)]
       (-> circuit
           (protocol/get-cell _to)
-          (protocol/merge-information increment _name))))
+          (protocol/assume increment _name))))
   (activate [_ circuit]
     (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) _sources)]
       (if (can-switch-activate? (first args) (second args))
         (let [increment (switch-apply (first args) (second args))]
+          (-> circuit
+              (protocol/get-cell _to)
+              (protocol/merge-information increment _name)))
+        (protocol/get-cell circuit _to)))))
+
+(defrecord SymbolicOrSwitch [_name _type-of _sources _to]
+  protocol/IType-of
+  (type-of [_this] _type-of)
+  protocol/ITag
+  (tag [_this] _name)
+  protocol/ISymbolicNeuron
+  (arg-cells [_this] _sources)
+  (to-cell [_this] _to)
+  (obey [_ circuit]
+    (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) _sources)
+          increment (apply or-switch-apply args)]
+      (-> circuit
+          (protocol/get-cell _to)
+          (protocol/assume increment _name))))
+  (activate [_ circuit]
+    (let [args (map (comp protocol/content (partial protocol/get-cell circuit)) _sources)]
+      (if (apply can-or-switch-activate? args)
+        (let [increment (apply or-switch-apply args)]
           (-> circuit
               (protocol/get-cell _to)
               (protocol/merge-information increment _name)))
@@ -266,12 +299,52 @@
         (protocol/add-neuron circuit instance)
         cells)))))
 
+(defn make-action-neuron [action-tag action & cells]
+  (let [tag            (symbol (str action-tag "__" (clojure.string/join "_" (butlast cells)) "_to_" (last cells)))
+        out            (last cells)
+        instance       (->SymbolicNeuron
+                        tag
+                        action-tag
+                        (butlast cells)
+                        out
+                        action
+                        nil)]
+    (fn join-into
+      ([] (join-into {}))
+      ([circuit]
+       (reduce
+        (fn [circuit cell]
+          (protocol/add-cell circuit cell))
+        (protocol/add-neuron circuit instance)
+        cells)))))
+
+(defn make-and [& cells]
+  (apply make-action-neuron
+         (concat ['and (fn [& args] (every? true? args))] cells)))
+
 (defn make-switch [& cells]
   (let [out            (last cells)
         tag            (symbol (str "switch__" (name (second cells)) "__eq__" (name out) "__if__" (name (first cells))))
         instance       (->SymbolicSwitch
                         tag
                         'switch
+                        (butlast cells)
+                        out)]
+    (fn join-into
+      ([] (join-into {}))
+      ([circuit]
+       (reduce
+        (fn [circuit cell]
+          (protocol/add-cell circuit cell))
+        (protocol/add-neuron circuit instance)
+        cells)))))
+
+(defn make-or-switch [& cells]
+  (let [out            (last cells)
+        tag            (symbol (str "or_switch__" (string/join "_" (butlast cells)) "_to_" (name out)))
+        instance       (->SymbolicOrSwitch
+                        tag
+                        'or-switch
                         (butlast cells)
                         out)]
     (fn join-into

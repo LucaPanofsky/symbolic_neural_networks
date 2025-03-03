@@ -21,14 +21,20 @@
 (def switch core/make-switch)
 (def circuit core/symbolic-neural-network)
 (def inverter core/make-inverter)
+(def and-node core/make-and)
+(def or-node core/make-or-switch)
 
 (defn switch? [n] (string/starts-with? (second n) "switch"))
 (defn inverter? [n] (string/starts-with? (second n) "inverter"))
+(defn and? [n] (string/starts-with? (second n) "and"))
+(defn or? [n] (string/starts-with? (second n) "or"))
 
 (defn read-neuron [n]
   (cond
     (switch? n) (apply switch (map symbol (drop 2 n)))
     (inverter? n) (apply inverter (map symbol (drop 2 n)))
+    (and? n) (apply and-node (map symbol (drop 2 n)))
+    (or? n) (apply or-node (map symbol (drop 2 n)))
     :else (apply neuron (map symbol (rest n)))))
 
 (defn read-circuit [c-string]
